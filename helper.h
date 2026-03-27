@@ -1,6 +1,10 @@
 #ifndef HELPER_H
 #define HELPER_H
 
-void boxCheck (int move[4], int lines[4][5], char owned[4][5] );
+#include "config.h"
+
+void boxCheck (int move[4], int lines[HEIGHT][LENGTH], char owned[HEIGHT][LENGTH]);
+
+void playerMove(int move[4], char p, int* scores[2]);
 
 #endif
