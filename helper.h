@@ -3,13 +3,12 @@
 
 #include "config.h"
 
-void boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH],char* owned[HEIGHT][LENGTH], int* scores[2], int* square[2],int coord[3]); 
-//return an array indicating which box was owned
-//return -1 in the first element or null pointer if no square was given
-//fills in the coordinate in square[2]
-//coord[0] will tell you if it is a vertical or horizontal line, the other two are coordinates for where the line was made
+int boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH],char owned[HEIGHT][LENGTH], int coord[3]); 
+//return 1 if a player now claimed a square
+//if so, edit the owned array
+//coord[0] = 1 if the new line is vertical and 0 otherwise
 
-void playerMove(char p, char* vlines[HEIGHT][LENGTH+1], char* hlines[HEIGHT+1][LENGTH]);
+int playerMove(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int coord[3]);
 
 #endif
 

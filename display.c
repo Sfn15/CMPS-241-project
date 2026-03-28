@@ -38,7 +38,7 @@ void displayBoard(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH] ,
                     }
                 }
             }
-            printf("%s\n",line);
+            printf("  %s\n",line);
         }
        
     }
