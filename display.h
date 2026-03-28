@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-void displayBoard(int vlines[HEIGHT-1][LENGTH+1], int hlines[HEIGHT][LENGTH+1], char owned[HEIGHT][LENGTH]);
+void displayBoard(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH]);
 
 
 #endif
