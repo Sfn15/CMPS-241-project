@@ -12,8 +12,8 @@ int main(){
     vlines[2][3]='|';
     vlines[2][4]='|';
     owned[2][3]='A';
-    hlines[2][2] ='_';
-    hlines[3][2] = '_';
+    hlines[2][2] ='-';
+    hlines[3][2] = '-';
    
 
     displayBoard(vlines, hlines, owned);
