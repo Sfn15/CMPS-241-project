@@ -19,10 +19,13 @@ int main(){
         while (playerMove(players[i%2], vlines, hlines, point)){ // keep playing until a valid input is registered
             continue; 
         }
-        //Need to add: if a player completes a square, repeat their turn
-
-
-        i++; //incement to move to the next player
+        
+        int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
+        scores[i%2] += boxesClaimed;
+        
+        if(boxesClaimed == 0) {
+            i++;
+        }
    }
 
 
