@@ -19,3 +19,5 @@ helper.o: helper.c config.h helper.h
 .PHONY: clean
 clean:
 	@rm -rf *.o $(OUTPUT)
+run: $(OUTPUT)
+	./$(OUTPUT)
