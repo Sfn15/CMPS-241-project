@@ -22,7 +22,7 @@ int main(){
         
         int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
         scores[i%2] += boxesClaimed;
-        printf("Updated score : A: %d, B: %d\n",scores[0],scores[1]);
+        //printf("Updated score : A: %d, B: %d\n",scores[0],scores[1]);
         
         if(boxesClaimed == 0) {
             i++;
