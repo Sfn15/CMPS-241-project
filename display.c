@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 void displayBoard(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH] , char owned[HEIGHT][LENGTH]){
-    printf("  0 1 2 3 4 5\n");
+    printf("  0 1 2 3 4 5                  dots and boxes by Stephane and Hassan\n");
     char line [2*LENGTH + 1];
     for(int i = 0; i < HEIGHT + 1 ; i++){
         printf("%d ",i);// print line index

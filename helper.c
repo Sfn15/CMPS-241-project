@@ -95,3 +95,45 @@ int playerMove(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENG
         }
     }
 }
+
+int boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH],char owned[HEIGHT][LENGTH], int coord[3]) {
+    int boxesFilled = 0;
+    int r = coord[1];
+    int c = coord[2];
+    
+    if (coord[0] == 1) {    //LINE IS VERTICAL
+        //check box to the left
+        if(c>0) { //if not on leftmost edge
+            if(vlines[r][c-1] != '\0' && hlines[r][c-1] != '\0' && hlines[r+1][c-1] != '\0') {
+                owned[r][c-1] = p;
+                boxesFilled++;
+            }
+        }
+        //check box to the right
+        if(c < LENGTH ) { //if not on rightmost edge
+            if(vlines[r][c+1] != '\0' && hlines[r][c] != '\0' && hlines[r+1][c] != '\0') {
+                owned[r][c] = p;
+                boxesFilled++;
+            }
+        }
+    }
+    
+    else {    //LINE IS HORIZONTAL
+        //check box above
+        if(r>0) { //if not on top edge
+            if(hlines[r-1][c] != '\0' && vlines[r-1][c] != '\0' && vlines[r-1][c+1] != '\0') {
+                owned[r-1][c] = p;
+                boxesFilled++;
+            }
+        }
+        //check box below
+        if(r < HEIGHT ) { //if not on bottom edge
+            if(hlines[r+1][c] != '\0' && vlines[r][c] != '\0' && vlines[r][c+1] != '\0') {
+                owned[r][c] = p;
+                boxesFilled++;
+            }
+        }
+    }
+
+    return boxesFilled;
+}
