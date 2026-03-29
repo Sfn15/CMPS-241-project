@@ -110,7 +110,7 @@ int boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH
             }
         }
         //check box to the right
-        if(c < LENGHT ) { //if not on rightmost edge
+        if(c < LENGTH ) { //if not on rightmost edge
             if(vlines[r][c+1] != '\0' && hlines[r][c] != '\0' && hlines[r+1][c] != '\0') {
                 owned[r][c] = p;
                 boxesFilled++;
