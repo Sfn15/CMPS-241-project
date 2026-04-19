@@ -1,6 +1,7 @@
 #include "helper.h"
 #include"config.h"
 #include "display.h"
+#include "bot.h"
 #include <stdio.h>
 
 
