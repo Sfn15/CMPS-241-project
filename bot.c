@@ -3,8 +3,10 @@
 #include <malloc.h>
 
 int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], int coord[3]){
+    int[4] move = {0, 0, 0, 0};
 
-
+    struct chain chains[HEIGHT*LENGTH];
+    
 }
 
 int countOpenSides(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],int r, int c){
