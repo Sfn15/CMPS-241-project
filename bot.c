@@ -3,10 +3,77 @@
 #include <malloc.h>
 
 int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], int coord[3]){
-    int[4] move = {0, 0, 0, 0};
-
+    int move[4] = {0, 0, 0, 0}; //return {0,1,2,3} as 0123 (take into consideration leading zeros)
     struct chain chains[HEIGHT*LENGTH];
+
+    //initialize to 0
+    for (int i = 0; i < HEIGHT * LENGTH; i++) {
+        chains[i].length = 0;
+        chains[i].open = 0;
+        chains[i].endpoint = -1;
+    }
+
+    findChains(vlines, hlines, owned, chains);
     
+    //TODO: (FIX) if last chain do not do double cross
+
+    //1. FIND LONGEST OPEN LONG CHAIN (length >= 3)
+    int max = 0;
+    for(int i=0; i < HEIGHT*LENGTH; i++) {
+        if(chains[i].open == 1 && chains[i].length > chains[max].length) {
+            max = i;
+        }
+    }
+    if(chains[max].open == 1 && chains[max].length >= 3) {
+        //TODO: use getopendirections to find the position of the last line in this chain's endpoint
+        //TODO: return the thing
+    }
+    //2. DOUBLE CROSS
+    else if(chains[max].open == 1 && chains[max].length == 2) {
+        //TODO: execute double cross (avoid closing the endpoint)
+    }
+    //3. CLOSE SINGLE BOX
+    else if(chains[max].open == 1 && chains[max].length == 1) {
+        //TODO: close box
+    }
+
+    //if there are no open chains, do the least bad move
+
+    //FIND BOX WITH THE LEAST AMOUNT OF LINES
+    //if 0 or 1, place line. this is early game stage.
+    //if 2, look for shortest chain. this is late game stage.
+
+    //FIND BOX WITH THE LEAST AMOUNT OF LINES
+    //TODO: MAKE SURE YOU DID NOT MESS UP THE ORDER OF I AND J AND C AND R
+    int min[3] = {0, 0, -1}; //{i, j, count}
+    for(int i=0; i < HEIGHT; i++) {
+        for(int j=0; j < LENGTH; j++) {
+            int n = countOpenSides(vlines, hlines, i, j);
+            if(n > min[2]) {
+                min[0] = i;
+                min[1] = j;
+                min[2] = n;
+            }
+        }
+    }
+    
+    //if 0 or 1, place line. this is early game stage.
+    if(min[2] <= 1) {
+        //TODO: place line
+    }
+    
+    //if 2, look for shortest chain. this is late game stage.
+    else {
+        int shortest = 0;
+        for(int i=0; i < HEIGHT*LENGTH; i++) {
+            if(chains[i].length < chains[shortest].length) {
+                shortest = i;
+            }
+        }
+        //TODO: place line in that chain
+    }
+    
+    //function ends here
 }
 
 int countOpenSides(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],int r, int c){
