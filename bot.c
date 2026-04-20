@@ -16,8 +16,11 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     findChains(vlines, hlines, owned, chains);
     
     //TODO: (FIX) if early game OR last chain DO NOT execute double cross
-
+    
+    printf("thinking...\n");
+    
     //1. FIND LONGEST OPEN LONG CHAIN (length >= 3)
+    printf("finding longest open long chain...\n");
     int max = 0;
     for(int i=0; i < HEIGHT*LENGTH; i++) {
         if(chains[i].open == 1 && chains[i].length > chains[max].length) {
@@ -25,10 +28,12 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
         }
     }
     if(chains[max].open == 1 && chains[max].length >= 3) {
+        printf("capture open chain of length %d\n", max);
         return placeLine(vlines, hlines, chains[max].blocks[chains[max].endpoint]);
     }
     //2. DOUBLE CROSS
     else if(chains[max].open == 1 && chains[max].length == 2) {
+        printf("execute double cross\n");
         //TODO: (FIX) if early game OR last chain DO NOT execute double cross
         int ep = chains[max].endpoint;
         return doubleCross(vlines, hlines, chains[max].blocks[ep], chains[max].blocks[1-ep]);
@@ -36,9 +41,10 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     }
     //3. CLOSE SINGLE BOX
     else if(chains[max].open == 1 && chains[max].length == 1) {
+        printf("close single box\n");
         return placeLine(vlines, hlines, chains[max].blocks[0]);
     }
-
+    printf("no open chains found\n");
     //if there are no open chains, do the least bad move
 
     //FIND BOX WITH THE LEAST AMOUNT OF LINES
@@ -47,7 +53,7 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
 
     //FIND BOX WITH THE LEAST AMOUNT OF LINES
     //(most amount of openings)
-    int min[3] = {0, 0, -1}; //{r, c, count}
+    int min[3] = {0, 0, 5}; //{r, c, count}
     for(int i=0; i < HEIGHT; i++) {
         for(int j=0; j < LENGTH; j++) {
             if(owned[i][j] != '\0') continue;
