@@ -25,8 +25,7 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
         }
     }
     if(chains[max].open == 1 && chains[max].length >= 3) {
-        //TODO: use getopendirections to find the position of the last line in this chain's endpoint
-        //TODO: return the thing
+        //return placeLine(vlines, hlines, ...);
     }
     //2. DOUBLE CROSS
     else if(chains[max].open == 1 && chains[max].length == 2) {
@@ -74,6 +73,24 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     }
     
     //function ends here
+}
+
+//returns dots where a line can be placed on the side of the box
+int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],int r, int c){
+    int sides = 4;
+    if(hlines[r][c] =='\0'){ // up
+        return 1000*r + 100*c + 10*r + c+1;
+    } 
+    if(hlines[r+1][c] == '\0'){ // down
+        return 1000*(r+1) + 100*c + 10*(r+1) + c+1;
+    }
+    if(vlines[r][c] == '\0'){ // left
+        return 1000*r + 100*c + 10*(r+1) + c;
+    }
+    if(vlines[r][c+1] == '\0'){ // right
+        return 1000*r + 100*(c+1) + 10*(r+1) + c+1;
+    }
+    return sides;
 }
 
 int countOpenSides(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],int r, int c){
