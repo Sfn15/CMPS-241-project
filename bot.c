@@ -2,7 +2,7 @@
 #include "bot.h"
 #include <malloc.h>
 
-int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], int coord[3]){
+int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH]){
     int move = 0; //return 0 1 2 3 as 0123 (take into consideration leading zeros)
     struct chain chains[HEIGHT*LENGTH];
 
