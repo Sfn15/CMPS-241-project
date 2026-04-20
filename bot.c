@@ -46,11 +46,14 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     //if 2, look for shortest chain. this is late game stage.
 
     //FIND BOX WITH THE LEAST AMOUNT OF LINES
+    //(most amount of openings)
     int min[3] = {0, 0, -1}; //{r, c, count}
     for(int i=0; i < HEIGHT; i++) {
         for(int j=0; j < LENGTH; j++) {
-            int n = countOpenSides(vlines, hlines, i, j);
-            if(n > min[2]) {
+            if(owned[i][j] != '\0') continue;
+            
+            int n = 4 - countOpenSides(vlines, hlines, i, j);
+            if(n < min[2]) {
                 min[0] = i;
                 min[1] = j;
                 min[2] = n;
@@ -60,7 +63,7 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     
     //if 0 or 1, place line. this is early game stage.
     if(min[2] <= 1) {
-        return placeLine2(vlines, hlines, r, c);
+        return placeLine2(vlines, hlines, min[0], min[1]);
     }
     
     //if 2, look for shortest chain. this is late game stage.
