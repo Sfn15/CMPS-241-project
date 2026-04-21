@@ -2,6 +2,9 @@
 #include "bot.h"
 #include <malloc.h>
 #include <stdio.h>
+#define printf(...) printf("")
+
+//TODO: FIX DOUBLE CROSS THINKING IT'S ENDGAME BECAUSE FILLED BLOCKS ARE NOT PART OF CHAIN
 
 //function prototypes
 int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box);
@@ -43,13 +46,13 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     }
     if(chains[max].open == 1 && chains[max].length >= 3) {
         printf("capture open chain of length %d\n", chains[max].length);
-        return placeLine(vlines, hlines, chains[max].blocks[chains[max].endpoint]);
+        return placeLine(vlines, hlines, chains[max].endpoint);
     }
     //2. DOUBLE CROSS
     else if(chains[max].open == 1 && chains[max].length == 2) {
         if(total != HEIGHT*LENGTH || chainCount == 1) { //if not endgame or last chain
             printf("capture open chain of length 2\n");
-            return placeLine(vlines, hlines, chains[max].blocks[chains[max].endpoint]);
+            return placeLine(vlines, hlines, chains[max].endpoint);
         }
         else { //if endgame and not last chain
             printf("execute double cross\n");
@@ -102,7 +105,12 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
             }
         }
         printf("shortest: chain #%d with %d blocks\n", shortest, chains[shortest].length);
-        return placeLine(vlines, hlines, chains[shortest].blocks[0]);
+        if(chains[shortest].length != 0) {
+            return placeLine(vlines, hlines, chains[shortest].blocks[0]);
+        }
+        else {
+            return placeLine2(vlines, hlines, min[0], min[1]);
+        }
     }
     //function ends here
 }
