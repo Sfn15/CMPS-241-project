@@ -1,6 +1,7 @@
 #include "helper.h"
 #include"config.h"
 #include "display.h"
+#include "bot.h"
 #include <stdio.h>
 
 
@@ -16,6 +17,8 @@ int main(){
     int i= 0;
     while(scores[0] + scores[1] < HEIGHT*LENGTH){ // while there are unclaimed squares
         displayBoard(vlines, hlines, owned);
+        int move = moveA(players[i%2], vlines, hlines, owned);
+        printf("bot suggestion: %d %d %d %d\n", (move/1000)%10, (move/100)%10, (move/10)%10, move%10);
         while (playerMove(players[i%2], vlines, hlines, point)){ // keep playing until a valid input is registered
             continue; 
         }

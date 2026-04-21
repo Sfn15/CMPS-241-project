@@ -1,6 +1,22 @@
 #include"helper.h"
 
-void moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH],int coord[3]);
+struct chain{
+    int open;
+    int length;
+    int blocks[HEIGHT*LENGTH];
+
+    int endpoint;
+};
+
+int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH]);
+
+void findChains(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], struct chain chains[HEIGHT*LENGTH]);
+
+
+
+
+
+
 
 
 
