@@ -1,6 +1,16 @@
 #include "helper.h"
 #include "bot.h"
 #include <malloc.h>
+#include <stdio.h>
+
+//function prototypes
+int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box);
+int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c);
+int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2);
+int countOpenSides(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c);
+void getOpenDirections(int r, int c, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int dirs[4]);
+void findChains(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], struct chain chains[HEIGHT*LENGTH]);
+
 
 int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH]){
     int move = 0; //return 0 1 2 3 as 0123 (take into consideration leading zeros)
@@ -22,22 +32,33 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     //1. FIND LONGEST OPEN LONG CHAIN (length >= 3)
     printf("finding longest open long chain...\n");
     int max = 0;
+    int total = 0;
+    int chainCount = 0;
     for(int i=0; i < HEIGHT*LENGTH; i++) {
+        total += chains[i].length;
+        if(chains[i].length > 0) chainCount++;
         if(chains[i].open == 1 && chains[i].length > chains[max].length) {
             max = i;
         }
     }
     if(chains[max].open == 1 && chains[max].length >= 3) {
-        printf("capture open chain of length %d\n", max);
+        printf("capture open chain of length %d\n", chains[max].length);
         return placeLine(vlines, hlines, chains[max].blocks[chains[max].endpoint]);
     }
     //2. DOUBLE CROSS
     else if(chains[max].open == 1 && chains[max].length == 2) {
-        printf("execute double cross\n");
-        //TODO: (FIX) if early game OR last chain DO NOT execute double cross
-        int ep = chains[max].endpoint;
-        return doubleCross(vlines, hlines, chains[max].blocks[ep], chains[max].blocks[1-ep]);
-        
+        if(total != HEIGHT*LENGTH || chainCount == 1) { //if not endgame or last chain
+            printf("capture open chain of length 2\n");
+            return placeLine(vlines, hlines, chains[max].blocks[chains[max].endpoint]);
+        }
+        else { //if endgame and not last chain
+            printf("execute double cross\n");
+            //TODO: (FIX) if early game OR last chain DO NOT execute double cross
+            int ep = chains[max].endpoint;
+            move = doubleCross(vlines, hlines, chains[max].blocks[ep], chains[max].blocks[1-ep]);
+            if(move != -1) {return move;}
+            else {printf("double cross cannot be executed");}
+        }
     }
     //3. CLOSE SINGLE BOX
     else if(chains[max].open == 1 && chains[max].length == 1) {
@@ -66,7 +87,7 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
             }
         }
     }
-    
+    printf("box with least amount of lines is at r: %d, c: %d, and has %d lines\n", min[0], min[1], min[2]);
     //if 0 or 1, place line. this is early game stage.
     if(min[2] <= 1) {
         return placeLine2(vlines, hlines, min[0], min[1]);
@@ -75,11 +96,12 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     //if 2, look for shortest chain. this is late game stage.
     else {
         int shortest = 0;
-        for(int i=0; i < HEIGHT*LENGTH; i++) {
-            if(chains[i].length < chains[shortest].length) {
+        for(int i=0; i < HEIGHT * LENGTH; i++) {
+            if(chains[i].length < chains[shortest].length || chains[shortest].length < 1) {
                 shortest = i;
             }
         }
+        printf("shortest: chain #%d with %d blocks\n", shortest, chains[shortest].length);
         return placeLine(vlines, hlines, chains[shortest].blocks[0]);
     }
     //function ends here
@@ -90,7 +112,8 @@ int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],int b
     //box int to coords
     int r = box/LENGTH;
     int c = box%LENGTH;
-    
+    printf("box #%d is at r: %d, c: %d\n", box, r, c);
+
     if(hlines[r][c] =='\0'){ // up
         return 1000*r + 100*c + 10*r + c+1;
     } 
