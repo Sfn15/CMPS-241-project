@@ -29,7 +29,14 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     findChains(vlines, hlines, owned, chains);
     
     //TODO: (FIX) if early game OR last chain DO NOT execute double cross
-    
+    //count filled boxes
+    int filled = 0;
+    for(int i=0; i < HEIGHT; i++) {
+        for(int j=0; j < LENGTH; j++) {
+            if(owned[i][j] != '\0') filled++;
+        }
+    }
+
     printf("thinking...\n");
     
     //1. FIND LONGEST OPEN LONG CHAIN (length >= 3)
@@ -50,17 +57,21 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     }
     //2. DOUBLE CROSS
     else if(chains[max].open == 1 && chains[max].length == 2) {
-        if(total != HEIGHT*LENGTH || chainCount == 1) { //if not endgame or last chain
+        printf("%d + %d = %d", total, filled, total + filled);
+        if(total + filled != HEIGHT*LENGTH || chainCount == 1) { //if not endgame or last chain
             printf("capture open chain of length 2\n");
             return placeLine(vlines, hlines, chains[max].endpoint);
         }
         else { //if endgame and not last chain
             printf("execute double cross\n");
             //TODO: (FIX) if early game OR last chain DO NOT execute double cross
-            int ep = chains[max].endpoint;
-            move = doubleCross(vlines, hlines, chains[max].blocks[ep], chains[max].blocks[1-ep]);
+            int o = 0;
+            if(chains[max].blocks[0] == chains[max].endpoint) o++;
+            move = doubleCross(vlines, hlines, chains[max].endpoint, chains[max].blocks[o]);
             if(move != -1) {return move;}
-            else {printf("double cross cannot be executed");}
+            else {printf("double cross cannot be executed, take that chain\n");}
+            move = placeLine(vlines, hlines, chains[max].endpoint);
+            if(move != -1) {return move;}
         }
     }
     //3. CLOSE SINGLE BOX
@@ -160,6 +171,8 @@ int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], in
     int r2 = box2/LENGTH;
     int c2 = box2%LENGTH;
     //box1 is the endpoint
+
+    printf("endpoint: box #%d (%d, %d) | box #%d (%d, %d)", box1, r1, c1, box2, r2, c2);
 
     //trying to find an empty line on box2 that isn't adjacent to box1
     if(hlines[r2][c2] =='\0' && box1 != box2-LENGTH){ // up
