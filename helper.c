@@ -44,6 +44,30 @@ int validateInput(int (*move)[4]){
     }
 }
 
+int doMove(char vlines[HEIGHT][LENGTH + 1], char hlines[HEIGHT + 1][LENGTH], int coord[3]){
+   if(coord[0] == -1){
+        printf("Invalid input, please try again\n");
+        return 1;
+    }
+
+    if(coord[0]){    
+        if (vlines[coord[1]][coord[2]] == '\0'){ //check a line does not already occupy this space
+            vlines[coord[1]][coord[2]] = '|';
+            return 0;
+        } else {
+            printf("There is already a line here, please try again.\n");
+            return 1;
+        }
+    } else {    
+        if (hlines[coord[1]][coord[2]] == '\0'){ //check a line does not already occupy this space
+            hlines[coord[1]][coord[2]] = '-';
+            return 0;
+        } else {
+            printf("There is already a line here, please try again.\n");
+            return 1;
+        }
+    } 
+}
 
 // return 1 if failed and 0 if successful.
 int playerMove(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int coord[3]){
@@ -73,28 +97,14 @@ int playerMove(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENG
         return 1;
     }
 
-    coord[0] = v;
-    coord[1] = move[0];
-    coord[2] = move[1];
+     coord[0] = v; // tells you if move is vertical
+     coord[1] = move[0]; // first coord
+     coord[2] = move[1]; // second coord
 
-    if(v){    
-        if (vlines[move[0]][move[1]] == '\0'){ //check a line does not already occupy this space
-            vlines[move[0]][move[1]] = '|';
-            return 0;
-        } else {
-            printf("There is already a line here, please try again.\n");
-            return 1;
-        }
-    } else {    
-        if (hlines[move[0]][move[1]] == '\0'){ //check a line does not already occupy this space
-            hlines[move[0]][move[1]] = '-';
-            return 0;
-        } else {
-            printf("There is already a line here, please try again.\n");
-            return 1;
-        }
-    }
+   return doMove(vlines, hlines, coord);
 }
+
+
 
 int boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH],char owned[HEIGHT][LENGTH], int coord[3]) {
     int boxesFilled = 0;

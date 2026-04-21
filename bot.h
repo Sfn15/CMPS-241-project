@@ -12,9 +12,11 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
 
 void findChains(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], struct chain chains[HEIGHT*LENGTH]);
 
+int doMove(char vlines[HEIGHT][LENGTH + 1], char hlines[HEIGHT + 1][LENGTH], int coord[3]);
 
+int validateInput(int (*move)[4]);
 
-
+int boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH],char owned[HEIGHT][LENGTH], int coord[3]);
 
 
 
