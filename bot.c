@@ -2,7 +2,10 @@
 #include "bot.h"
 #include <malloc.h>
 #include <stdio.h>
-#define printf(...) printf("")
+
+void nothing(){}
+
+#define printf(...) nothing()
 
 //TODO: FIX DOUBLE CROSS THINKING IT'S ENDGAME BECAUSE FILLED BLOCKS ARE NOT PART OF CHAIN
 
@@ -166,13 +169,13 @@ int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int
 
 int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2){
     //box int to coords
-    int r1 = box1/LENGTH;
-    int c1 = box1%LENGTH;
+    //int r1 = box1/LENGTH;
+    //int c1 = box1%LENGTH;
     int r2 = box2/LENGTH;
     int c2 = box2%LENGTH;
     //box1 is the endpoint
 
-    printf("endpoint: box #%d (%d, %d) | box #%d (%d, %d)", box1, r1, c1, box2, r2, c2);
+    //printf("endpoint: box #%d (%d, %d) | box #%d (%d, %d)", box1, r1, c1, box2, r2, c2);
 
     //trying to find an empty line on box2 that isn't adjacent to box1
     if(hlines[r2][c2] =='\0' && box1 != box2-LENGTH){ // up
