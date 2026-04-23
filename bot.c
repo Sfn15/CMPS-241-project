@@ -107,7 +107,53 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     printf("box with least amount of lines is at r: %d, c: %d, and has %d lines\n", min[0], min[1], min[2]);
     //if 0 or 1, place line. this is early game stage.
     if(min[2] <= 1) {
-        return placeLine2(vlines, hlines, min[0], min[1]);
+        //check vlines
+        int bestLine[4] = {0, 0, 5, 0}; //4th: 0: v , 1: h
+        for(int i=0; i < HEIGHT; i++) {
+            for(int j=0; j < LENGTH+1; j++) {
+                if(vlines[i][j] != '\0') continue;
+                //n = biggest number of lines in boxes adjacent to this line
+                int n = 0;
+                if(j < 0) n = 4 - countOpenSides(vlines, hlines, i, j);
+                if(j > 0) {
+                    int m = 4 - countOpenSides(vlines, hlines, i, j-1);
+                    if(m > n) n = m;
+                }
+                //find smallest n
+                if(n < bestLine[2]) {
+                    bestLine[0] = i;
+                    bestLine[1] = j;
+                    bestLine[2] = n;
+                }
+            }
+        }
+        //check hlines
+        for(int i=0; i < HEIGHT+1; i++) {
+            for(int j=0; j < LENGTH; j++) {
+                if(hlines[i][j] != '\0') continue;
+                //n = biggest number of lines in boxes adjacent to this line
+                int n = 0;
+                if(i < 0) n = 4 - countOpenSides(vlines, hlines, i, j);
+                if(i > 0) {
+                    int m = 4 - countOpenSides(vlines, hlines, i-1, j);
+                    if(m > n) n = m;
+                }
+                //find smallest n
+                if(n < bestLine[2]) {
+                    bestLine[0] = i;
+                    bestLine[1] = j;
+                    bestLine[2] = n;
+                    bestLine[3] = 1;
+                }
+            }
+        }
+        //return
+        if(bestLine[3] == 0) { //vline
+            return bestLine[0]*1000 + bestLine[1]*100 + bestLine[0]*10 + 10 + bestLine[1];
+        }
+        else { //hline
+            return bestLine[0]*1000 + bestLine[1]*100 + bestLine[0]*10 + bestLine[1] + 1;
+        }
     }
     
     //if 2, look for shortest chain. this is late game stage.
@@ -128,6 +174,7 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     }
     //function ends here
 }
+
 
 //returns dots where a line can be placed on the side of the box
 int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],int box){
