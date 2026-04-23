@@ -21,7 +21,7 @@ int main(){
     char yesNo;
 
  while (1) {
-    printf("Play vs bot? [Y/n]: ");
+    printf("Play vs bot? [Y/n]: \n");
     scanf(" %c", &yesNo);
 
     if (yesNo == 'Y' || yesNo == 'y') {
