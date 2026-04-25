@@ -46,6 +46,9 @@ if(botGame){
 
         if(i%2){
 
+
+            moveA(players[i%2], vlines, hlines, owned, botMove);
+
             printf("\n Bot's move: %d %d -> %d %d\n\n", botMove[0],botMove[1],botMove[2],botMove[3]);
 
            int v = validateInput(&botMove);
