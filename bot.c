@@ -10,15 +10,14 @@ void nothing(){}
 //TODO: FIX DOUBLE CROSS THINKING IT'S ENDGAME BECAUSE FILLED BLOCKS ARE NOT PART OF CHAIN
 
 //function prototypes
-int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box);
-int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c);
-int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2);
+int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box, int moveArr[4]);
+int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c, int moveArr[4]);
+int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2, int arr[4]);
 int countOpenSides(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c);
 void getOpenDirections(int r, int c, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int dirs[4]);
 void findChains(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], struct chain chains[HEIGHT*LENGTH]);
 
 int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], int moveArr[4]){
-    moveArr[4] = {0, 0, 0, 0};
     int move = 0;
     struct chain chains[HEIGHT*LENGTH];
 
@@ -149,11 +148,11 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
         }
         //return
         if(bestLine[3] == 0) { //vline
-            arr[0] = bestLine[0]; arr[1] = bestLine[1]; arr[2] = bestLine[0]+1; arr[3] = bestLine[1];
+            moveArr[0] = bestLine[0]; moveArr[1] = bestLine[1]; moveArr[2] = bestLine[0]+1; moveArr[3] = bestLine[1];
             return 1;
         }
         else { //hline
-            arr[0] = bestLine[0]; arr[1] = bestLine[1]; arr[2] = bestLine[0]; arr[3] = bestLine[1]+1;
+            moveArr[0] = bestLine[0]; moveArr[1] = bestLine[1]; moveArr[2] = bestLine[0]; moveArr[3] = bestLine[1]+1;
             return 1;
         }
     }
@@ -224,7 +223,7 @@ int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int
     return -1;
 }
 
-int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2){
+int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2, int arr[4]){
     //box int to coords
     //int r1 = box1/LENGTH;
     //int c1 = box1%LENGTH;
