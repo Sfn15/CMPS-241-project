@@ -10,16 +10,15 @@ void nothing(){}
 //TODO: FIX DOUBLE CROSS THINKING IT'S ENDGAME BECAUSE FILLED BLOCKS ARE NOT PART OF CHAIN
 
 //function prototypes
-int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box);
-int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c);
-int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2);
+int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box, int moveArr[4]);
+int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c, int moveArr[4]);
+int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2, int arr[4]);
 int countOpenSides(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c);
 void getOpenDirections(int r, int c, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int dirs[4]);
 void findChains(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], struct chain chains[HEIGHT*LENGTH]);
 
-
-int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH]){
-    int move = 0; //return 0 1 2 3 as 0123 (take into consideration leading zeros) // I am absolutely disgusted by this -stephane
+int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], int moveArr[4]){
+    int move = 0;
     struct chain chains[HEIGHT*LENGTH];
 
     //initialize to 0
@@ -56,31 +55,31 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
     }
     if(chains[max].open == 1 && chains[max].length >= 3) {
         printf("capture open chain of length %d\n", chains[max].length);
-        return placeLine(vlines, hlines, chains[max].endpoint);
+        return placeLine(vlines, hlines, chains[max].endpoint, moveArr);
     }
     //2. DOUBLE CROSS
     else if(chains[max].open == 1 && chains[max].length == 2) {
         printf("%d + %d = %d", total, filled, total + filled);
         if(total + filled != HEIGHT*LENGTH || chainCount == 1) { //if not endgame or last chain
             printf("capture open chain of length 2\n");
-            return placeLine(vlines, hlines, chains[max].endpoint);
+            return placeLine(vlines, hlines, chains[max].endpoint, moveArr);
         }
         else { //if endgame and not last chain
             printf("execute double cross\n");
             //TODO: (FIX) if early game OR last chain DO NOT execute double cross
             int o = 0;
             if(chains[max].blocks[0] == chains[max].endpoint) o++;
-            move = doubleCross(vlines, hlines, chains[max].endpoint, chains[max].blocks[o]);
+            move = doubleCross(vlines, hlines, chains[max].endpoint, chains[max].blocks[o], moveArr);
             if(move != -1) {return move;}
             else {printf("double cross cannot be executed, take that chain\n");}
-            move = placeLine(vlines, hlines, chains[max].endpoint);
+            move = placeLine(vlines, hlines, chains[max].endpoint, moveArr);
             if(move != -1) {return move;}
         }
     }
     //3. CLOSE SINGLE BOX
     else if(chains[max].open == 1 && chains[max].length == 1) {
         printf("close single box\n");
-        return placeLine(vlines, hlines, chains[max].blocks[0]);
+        return placeLine(vlines, hlines, chains[max].blocks[0], moveArr);
     }
     printf("no open chains found\n");
     //if there are no open chains, do the least bad move
@@ -149,10 +148,12 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
         }
         //return
         if(bestLine[3] == 0) { //vline
-            return bestLine[0]*1000 + bestLine[1]*100 + bestLine[0]*10 + 10 + bestLine[1];
+            moveArr[0] = bestLine[0]; moveArr[1] = bestLine[1]; moveArr[2] = bestLine[0]+1; moveArr[3] = bestLine[1];
+            return 1;
         }
         else { //hline
-            return bestLine[0]*1000 + bestLine[1]*100 + bestLine[0]*10 + bestLine[1] + 1;
+            moveArr[0] = bestLine[0]; moveArr[1] = bestLine[1]; moveArr[2] = bestLine[0]; moveArr[3] = bestLine[1]+1;
+            return 1;
         }
     }
     
@@ -166,10 +167,10 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
         }
         printf("shortest: chain #%d with %d blocks\n", shortest, chains[shortest].length);
         if(chains[shortest].length != 0) {
-            return placeLine(vlines, hlines, chains[shortest].blocks[0]);
+            return placeLine(vlines, hlines, chains[shortest].blocks[0], moveArr);
         }
         else {
-            return placeLine2(vlines, hlines, min[0], min[1]);
+            return placeLine2(vlines, hlines, min[0], min[1], moveArr);
         }
     }
     //function ends here
@@ -177,65 +178,77 @@ int moveA(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], 
 
 
 //returns dots where a line can be placed on the side of the box
-int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],int box){
+int placeLine(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],int box, int arr[4]){
     //box int to coords
     int r = box/LENGTH;
     int c = box%LENGTH;
     printf("box #%d is at r: %d, c: %d\n", box, r, c);
 
     if(hlines[r][c] =='\0'){ // up
-        return 1000*r + 100*c + 10*r + c+1;
+        arr[0] = r; arr[1] = c; arr[2] = r; arr[3] = c+1;
+        return 1;
     } 
     if(hlines[r+1][c] == '\0'){ // down
-        return 1000*(r+1) + 100*c + 10*(r+1) + c+1;
+        arr[0] = r+1; arr[1] = c; arr[2] = r+1; arr[3] = c+1;
+        return 1;
     }
     if(vlines[r][c] == '\0'){ // left
-        return 1000*r + 100*c + 10*(r+1) + c;
+        arr[0] = r; arr[1] = c; arr[2] = r+1; arr[3] = c;
+        return 1;
     }
     if(vlines[r][c+1] == '\0'){ // right
-        return 1000*r + 100*(c+1) + 10*(r+1) + c+1;
+        arr[0] = r; arr[1] = c+1; arr[2] = r+1; arr[3] = c+1;
+        return 1;
     }
     return -1;
 }
 //uses coords instead of box index
-int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c){
+int placeLine2(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int r, int c, int arr[4]){
     if(hlines[r][c] =='\0'){ // up
-        return 1000*r + 100*c + 10*r + c+1;
+        arr[0] = r; arr[1] = c; arr[2] = r; arr[3] = c+1;
+        return 1;
     } 
     if(hlines[r+1][c] == '\0'){ // down
-        return 1000*(r+1) + 100*c + 10*(r+1) + c+1;
+        arr[0] = r+1; arr[1] = c; arr[2] = r+1; arr[3] = c+1;
+        return 1;
     }
     if(vlines[r][c] == '\0'){ // left
-        return 1000*r + 100*c + 10*(r+1) + c;
+        arr[0] = r; arr[1] = c; arr[2] = r+1; arr[3] = c;
+        return 1;
     }
     if(vlines[r][c+1] == '\0'){ // right
-        return 1000*r + 100*(c+1) + 10*(r+1) + c+1;
+        arr[0] = r; arr[1] = c+1; arr[2] = r+1; arr[3] = c+1;
+        return 1;
     }
     return -1;
 }
 
-int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2){
+int doubleCross(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int box1, int box2, int arr[4]){
     //box int to coords
     //int r1 = box1/LENGTH;
     //int c1 = box1%LENGTH;
-    int r2 = box2/LENGTH;
-    int c2 = box2%LENGTH;
+    int r = box2/LENGTH;
+    int c = box2%LENGTH;
     //box1 is the endpoint
 
     //printf("endpoint: box #%d (%d, %d) | box #%d (%d, %d)", box1, r1, c1, box2, r2, c2);
 
     //trying to find an empty line on box2 that isn't adjacent to box1
-    if(hlines[r2][c2] =='\0' && box1 != box2-LENGTH){ // up
-        return 1000*r2 + 100*c2 + 10*r2 + c2+1;
+    if(hlines[r][c] =='\0' && box1 != box2-LENGTH){ // up
+        arr[0] = r; arr[1] = c; arr[2] = r; arr[3] = c+1;
+        return 1;
     } 
-    if(hlines[r2+1][c2] == '\0' && box1 != box2+LENGTH){ // down
-        return 1000*(r2+1) + 100*c2 + 10*(r2+1) + c2+1;
+    if(hlines[r+1][c] == '\0' && box1 != box2+LENGTH){ // down
+        arr[0] = r+1; arr[1] = c; arr[2] = r+1; arr[3] = c+1;
+        return 1;
     }
-    if(vlines[r2][c2] == '\0' && box1 != box2-1){ // left
-        return 1000*r2 + 100*c2 + 10*(r2+1) + c2;
+    if(vlines[r][c] == '\0' && box1 != box2-1){ // left
+        arr[0] = r; arr[1] = c; arr[2] = r+1; arr[3] = c;
+        return 1;
     }
-    if(vlines[r2][c2+1] == '\0' && box1 != box2+1){ // right
-        return 1000*r2 + 100*(c2+1) + 10*(r2+1) + c2+1;
+    if(vlines[r][c+1] == '\0' && box1 != box2+1){ // right
+        arr[0] = r; arr[1] = c+1; arr[2] = r+1; arr[3] = c+1;
+        return 1;
     }
     return -1;
 }

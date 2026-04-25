@@ -46,12 +46,7 @@ if(botGame){
         displayBoard(vlines,hlines, owned);
 
         if(i%2){
-            absoluteNonsense = moveA(players[i%2],vlines, hlines, owned);
-            //convert the absolute nonsense
-            botMove[0] = (absoluteNonsense/1000)%10;
-            botMove[1] = (absoluteNonsense/100)%10;
-            botMove[2] = (absoluteNonsense/10)%10;
-            botMove[3] = (absoluteNonsense)%10;
+            absoluteNonsense = moveA(players[i%2],vlines, hlines, owned, botMove);
 
             printf("\n Bot's move: %d %d -> %d %d\n\n", botMove[0],botMove[1],botMove[2],botMove[3]);
 
