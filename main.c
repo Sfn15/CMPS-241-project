@@ -12,7 +12,6 @@ int main(){
     int scores[2]={0,0};
     int point[3]= {0};
     int botMove[4];
-    int absoluteNonsense;
 
     char vlines[HEIGHT][LENGTH+1]={0};
     char hlines[HEIGHT+1][LENGTH]={0}; 
@@ -46,7 +45,6 @@ if(botGame){
         displayBoard(vlines,hlines, owned);
 
         if(i%2){
-            absoluteNonsense = moveA(players[i%2],vlines, hlines, owned, botMove);
 
             printf("\n Bot's move: %d %d -> %d %d\n\n", botMove[0],botMove[1],botMove[2],botMove[3]);
 

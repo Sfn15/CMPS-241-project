@@ -23,4 +23,4 @@ bot.o: bot.c bot.h helper.h
 clean:
 	@rm -rf *.o $(OUTPUT)
 run: $(OUTPUT)
-	./$(OUTPUT)
+	@./$(OUTPUT)
