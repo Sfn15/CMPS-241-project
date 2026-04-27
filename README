@@ -2,4 +2,46 @@ NOTE: should probably change the name of boxes array from "owned" to boxes
 
 
 
+Strategy outline for sprint 3:
 
+use netcat (nc) for actual communication
+
+
+
+Step 1: figure out IP address and port
+
+#include <arpa/inet.h>
+
+use htonl and ntohl for converting byte orders
+
+
+
+
+
+
+Step 2: create socket
+
+int socket(int domain, int type, int protocol);
+domain:= AF_INET for IPv4 or AF_INET6 for v6
+type = SOCK_DGRAM or SOCK_STREAM
+prodocol = 0 (IPPROTO_UDP or IPPROTO_TCP)
+returns fd or -1 on error
+
+
+
+
+
+Step 3: Connect()
+
+int connect(int sockfd, const struct sockaddr* addr, socklen_t addrlen)
+sockfd: socket file description from step 2
+addr and addrlen: usually one of the address structures returned by getaddrinfo
+return 0 on success and -1 on err
+
+
+Step 4: read() write() using the socket
+
+read(int fd, void* buf, size_t count);
+return num of bytes read
+
+write(int fd, void* buf, size_t count);

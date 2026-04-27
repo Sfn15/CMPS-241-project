@@ -1,10 +1,14 @@
 #include "helper.h"
-#include"config.h"
+#include "config.h"
 #include "display.h"
 #include "bot.h"
+#include "server.h"
 
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+
+#include <pthread.h>
 
 
 int main(){
@@ -19,84 +23,183 @@ int main(){
     int botGame = 0; // 0 for pvp, 1 for pv bot
     char yesNo;
 
- while (1) {
-    printf("Play vs bot? [Y/n]: \n");
-    scanf(" %c", &yesNo);
+    char buffer[BUFSIZE];
 
-    if (yesNo == 'Y' || yesNo == 'y') {
-        botGame = 1;  
-        break;
-    } else if (yesNo == 'N' || yesNo == 'n') {
-        botGame = 0;
-        break;
-    } else {
-        printf("Invalid input. Please enter Y/y or N/n.\n");
+    while (1) {
+        printf("Play vs bot? [Y/n]: \n");
+        scanf(" %c", &yesNo);
+
+        if (yesNo == 'Y' || yesNo == 'y') {
+            botGame = 1;  
+            break;
+        } else if (yesNo == 'N' || yesNo == 'n') {
+            botGame = 0;
+            break;
+        } else {
+            printf("Invalid input. Please enter Y/y or N/n.\n");
+        }
     }
-}
-
-    
-
 
 
     int i= 0;
-if(botGame){
+        if(botGame){
 
-    while(scores[0] + scores[1] < HEIGHT*LENGTH){
-        displayBoard(vlines,hlines, owned);
+        while(scores[0] + scores[1] < HEIGHT*LENGTH){
+            displayBoard(vlines,hlines, owned);
 
-        if(i%2){
+            if(i%2){
 
 
-            moveA(players[i%2], vlines, hlines, owned, botMove);
+                moveA(players[i%2], vlines, hlines, owned, botMove);
 
-            printf("\n Bot's move: %d %d -> %d %d\n\n", botMove[0],botMove[1],botMove[2],botMove[3]);
+                printf("\n Bot's move: %d %d -> %d %d\n\n", botMove[0],botMove[1],botMove[2],botMove[3]);
 
-           int v = validateInput(&botMove);
-           point[0] = v;
-           point[1] = botMove[0];
-           point[2] = botMove[1];
-           doMove(vlines, hlines, point);
-        
-            sleep(2); // if a bot captures a chain, it can be a bit disorienting, we 
-            //sleep here to give the player time to take in their crushing defeat. 
+                int v = validateInput(&botMove);
+                point[0] = v;
+                point[1] = botMove[0];
+                point[2] = botMove[1];
+                doMove(vlines, hlines, point);
+            
+                sleep(2); // if a bot captures a chain, it can be a bit disorienting, we 
+                //sleep here to give the player time to take in their crushing defeat. 
+            } else {
+                while (playerMove(players[i%2], vlines, hlines, point)){
+                    continue;
+                }   
+            }
+
+            int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
+            scores[i%2] += boxesClaimed;
+            if(boxesClaimed){
+                printf("Updated score : A: %d, B: %d\n",scores[0],scores[1]);
+            }
+            
+            if(boxesClaimed == 0) {
+                i++;
+            }
+        }
+
         } else {
-            while (playerMove(players[i%2], vlines, hlines, point)){
-                continue;
-            }   
-        }
+            int online;
 
-        int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
-        scores[i%2] += boxesClaimed;
-        if(boxesClaimed){
-            printf("Updated score : A: %d, B: %d\n",scores[0],scores[1]);
-        }
-        
-        if(boxesClaimed == 0) {
-            i++;
+            
+
+            while (1) {
+                printf("Play online? [Y/n]: \n");
+                scanf(" %c", &yesNo);
+
+                if (yesNo == 'Y' || yesNo == 'y') {
+                    online = 1;  
+                    break;
+                } else if (yesNo == 'N' || yesNo == 'n') {
+                    online = 0;
+                    break;
+                } else {
+                    printf("Invalid input. Please enter Y/y or N/n.\n");
+                }
+            }
+
+            if(online){
+                int fd[2]; // server fd = fd[0] client fd = fd[1]
+                int valid;
+                int result;
+
+                runServer(fd);
+
+                SharedMove *moveInfo = (SharedMove *) calloc(1, sizeof(SharedMove)); //Initiate the shared memory
+                moveInfo->ready = 0;
+                pthread_mutex_init(&moveInfo->mutex, NULL);
+
+                // start the threa that will manage communication with the client
+                pthread_t network_thread;
+                pthread_create(&network_thread, NULL, networkThread, moveInfo);
+                pthread_detach(network_thread);
+
+                int move[4];
+
+                while(scores[0] + scores[1] < HEIGHT*LENGTH){
+                    if(i%2){ // i is even => local player's turn, i is odd => online player's turn
+                        while(playerMove(players[i%2],vlines, hlines, point)){
+                            continue;
+                        }
+
+                        int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
+                        scores[i%2] += boxesClaimed;
+                        if(boxesClaimed){
+                        printf("Updated score : A: %d, B: %d\n",scores[0],scores[1]);
+                        }
+                        
+                        if(boxesClaimed == 0) {
+                            i++;
+                        }
+
+                    } else {
+
+                        valid = 0;
+
+                        while(!valid){
+                            pthread_mutex_lock(&moveInfo->mutex);
+
+                            if (moveInfo->ready == 0){
+                                pthread_mutex_unlock(&moveInfo->mutex);
+                                continue;
+                            }
+
+                            for(int j = 0; j < 4; j++){
+                                move[j] = moveInfo->move[j];
+                            }
+
+                            //mark that move has been read
+                            moveInfo->ready = 0;
+
+                            result = onlineMove(move, vlines, hlines, point);
+
+                            if(result == 1){
+                                write(fd[1], "INVALID\n", sizeof("INVALID\n"));
+                                continue;
+                            } else if (result == 2){
+                                write(fd[1], "OCCUPIED\n", sizeof("OCCUPIED\n"));
+                                continue;
+                            }   
+                        }
+
+                        
+
+
+
+                    }
+                }
+                
+
+            } else {
+
+                while(scores[0] + scores[1] < HEIGHT*LENGTH){ // while there are unclaimed squares
+                    displayBoard(vlines, hlines, owned);
+
+                    while (playerMove(players[i%2], vlines, hlines, point)){ // keep playing until a valid input is registered
+                        continue; 
+                    }
+                    
+                    int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
+                    scores[i%2] += boxesClaimed;
+                    if(boxesClaimed){
+                        printf("Updated score : A: %d, B: %d\n",scores[0],scores[1]);
+                    }
+                    
+                    if(boxesClaimed == 0) {
+                        i++;
+                    }
+                }
+
+                    
         }
     }
-
-} else {
-
-     while(scores[0] + scores[1] < HEIGHT*LENGTH){ // while there are unclaimed squares
-        displayBoard(vlines, hlines, owned);
-
-        while (playerMove(players[i%2], vlines, hlines, point)){ // keep playing until a valid input is registered
-            continue; 
-        }
-        
-        int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
-        scores[i%2] += boxesClaimed;
-        if(boxesClaimed){
-            printf("Updated score : A: %d, B: %d\n",scores[0],scores[1]);
-        }
-        
-        if(boxesClaimed == 0) {
-            i++;
-        }
-   }
-}
    
+
+
+
+
+
 
    if(scores[0] > scores[1]){
     printf("Player %c wins with a score of %d!",players[0],scores[0]);

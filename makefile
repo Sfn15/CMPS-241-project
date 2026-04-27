@@ -7,7 +7,7 @@ OUTPUT = app
 $(OUTPUT): $(OBJECTS)
 	$(CC) -o $@ $^
 
-main.o: main.c config.h display.h helper.h
+main.o: main.c config.h display.h helper.h server.h
 	$(CC) $(CFLAGS) $<
 
 display.o: display.c config.h display.h
@@ -17,6 +17,9 @@ helper.o: helper.c config.h helper.h
 	$(CC) $(CFLAGS) $<
 
 bot.o: bot.c bot.h helper.h
+	$(CC) $(CFLAGS) $<
+
+server.o: server.c server.h config.h
 	$(CC) $(CFLAGS) $<
 
 .PHONY: clean

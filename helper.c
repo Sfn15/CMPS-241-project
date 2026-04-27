@@ -1,12 +1,14 @@
 #include "helper.h"
+#include <string.h>
 #include <stdio.h>
 
-int validateInput(int (*move)[4]){
+int validateInput(int move[4]){
     // return -1 for invalid input
     // return 0 for horizontal line
     // return 1 for vertical line
     // also order the input so that the logic is easier
-    int *m = *move;
+    //int validateInput(int (*move)[4]){
+    int *m = move;
     int temp;
 
     for(int i = 0; i < 2; i++){ //check for out of bounds input
@@ -90,7 +92,7 @@ int playerMove(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENG
         }
     }
     //now make sure input is valid
-    int v = validateInput(&move);
+    int v = validateInput(move);
 
     if(v == -1){
         printf("Invalid input, please try again\n");
@@ -104,6 +106,43 @@ int playerMove(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENG
    return doMove(vlines, hlines, coord);
 }
 
+// reutrn values: 0 send board, 1 send INVALID, 2 send OCCUPIED
+int onlineMove(int move[4] ,char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int coord[3]){
+    
+    int v = validateInput(move);
+
+    if(v == -1){
+        return 1;
+    } 
+
+    coord[0] = v;
+    coord[1] = move[0];
+    coord[2] = move[1];
+
+    return doMoveOnline(vlines, hlines, coord);
+}
+
+int doMoveOnline(char vlines[HEIGHT][LENGTH + 1], char hlines[HEIGHT + 1][LENGTH], int coord[3]){
+   if(coord[0] == -1){
+        return 1;
+    }
+
+    if(coord[0]){    
+        if (vlines[coord[1]][coord[2]] == '\0'){ //check a line does not already occupy this space
+            vlines[coord[1]][coord[2]] = '|';
+            return 0;
+        } else {
+            return 2;
+        }
+    } else {    
+        if (hlines[coord[1]][coord[2]] == '\0'){ //check a line does not already occupy this space
+            hlines[coord[1]][coord[2]] = '-';
+            return 0;
+        } else {
+            return 2;
+        }
+    } 
+}
 
 
 int boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH],char owned[HEIGHT][LENGTH], int coord[3]) {

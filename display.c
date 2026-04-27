@@ -1,5 +1,6 @@
 #include "display.h"
-#include"config.h"
+#include "config.h"
+#include <string.h>
 #include <stdio.h>
 
 void displayBoard(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH] , char owned[HEIGHT][LENGTH]){
@@ -42,6 +43,10 @@ void displayBoard(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH] ,
         }
        
     }
-
-    //TODO complete this guy
 }
+
+void onlineDisplay(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], char buffer[BUFSIZE]){
+    size_t pos = 0; 
+    memset(buffer, '\0',strlen(buffer));
+}
+    

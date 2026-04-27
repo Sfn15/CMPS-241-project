@@ -1,6 +1,8 @@
 #ifndef HELPER_H
 #define HELPER_H
 
+#define BUFSIZE 4096
+
 #include "config.h"
 
 int boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH],char owned[HEIGHT][LENGTH], int coord[3]); 
@@ -10,6 +12,9 @@ int boxCheck (char p, char vlines[HEIGHT][LENGTH+1],char hlines[HEIGHT+1][LENGTH
 
 int playerMove(char p, char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int coord[3]);
 
+int onlineMove(int move[4] ,char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], int coord[3]);
+
+int doMoveOnline(char vlines[HEIGHT][LENGTH + 1], char hlines[HEIGHT + 1][LENGTH], int coord[3]);
 #endif
 
 //char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH]
