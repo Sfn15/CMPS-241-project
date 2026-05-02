@@ -45,8 +45,53 @@ void displayBoard(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH] ,
     }
 }
 
-void onlineDisplay(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], char buffer[BUFSIZE]){
-    size_t pos = 0; 
-    memset(buffer, '\0',strlen(buffer));
+// void onlineDisplay(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], char buffer[BUFSIZE]){
+//     size_t pos = 0; 
+//     memset(buffer, '\0',strlen(buffer));
+// }
+
+
+
+void stringDisplay(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], char buffer[BUFSIZE], int boxesClaimed,int scores[2]) {
+    memset(buffer, 0, BUFSIZE);
+    char line[2 * LENGTH + 2];
+    int pos = 0;
+
+    pos += sprintf(buffer + pos, "  0 1 2 3 4 5                  dots and boxes by Stephane and Hassan\n");
+
+    for (int i = 0; i < HEIGHT + 1; i++) {
+        pos += sprintf(buffer + pos, "%d ", i);
+
+        for (int j = 0; j < 2 * LENGTH; j++) {
+            if (j % 2) {
+                line[j] = (hlines[i][(j - 1) / 2] != '\0') ? hlines[i][(j - 1) / 2] : ' ';
+            } else {
+                line[j] = '.';
+            }
+        }
+        line[2 * LENGTH] = '.';
+        line[2 * LENGTH + 1] = '\0';
+        pos += sprintf(buffer + pos, "%s\n", line);
+
+        if (i != HEIGHT) {
+            pos += sprintf(buffer + pos, "  ");
+            for (int j = 0; j < 2 * LENGTH + 1; j++) {
+                if (j % 2) {
+                    line[j] = (owned[i][(j - 1) / 2] != '\0') ? owned[i][(j - 1) / 2] : ' ';
+                } else {
+                    line[j] = (vlines[i][j / 2] != '\0') ? vlines[i][j / 2] : ' ';
+                }
+            }
+            line[2 * LENGTH + 1] = '\0';
+            pos += sprintf(buffer + pos, "%s\n", line);
+        }
+    }
+
+    if(boxesClaimed){
+        pos += sprintf(buffer + pos, "Updated score : A: %d, B: %d\n", scores[0], scores[1]);
+    }
+
+
+    buffer[pos] = '\0';
 }
     
