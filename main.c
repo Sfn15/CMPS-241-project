@@ -7,11 +7,35 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <pthread.h>
 
+#include <signal.h>
+
+int server_fd = -1;
+int client_fd = -1;
+
+
+//let the program close the sockets properly when sending shutdown signal
+void handleInterrupt(int sig){
+    printf("\n Shutting down server \n");
+
+    if(server_fd != -1){
+        close(server_fd);
+    }
+
+    if(client_fd != -1){
+        close(client_fd);
+    }
+
+    exit(0);
+}
 
 int main(){
+
+    signal(SIGINT, handleInterrupt);
+
     char players[2] = {'A','B'};
     int scores[2]={0,0};
     int point[3]= {0};
@@ -22,8 +46,6 @@ int main(){
     char owned[HEIGHT][LENGTH]={0};
     int botGame = 0; // 0 for pvp, 1 for pv bot
     char yesNo;
-
-    char buffer[BUFSIZE];
 
     while (1) {
         printf("Play vs bot? [Y/n]: \n");
@@ -49,7 +71,6 @@ int main(){
 
             if(i%2){
 
-
                 moveA(players[i%2], vlines, hlines, owned, botMove);
 
                 printf("\n Bot's move: %d %d -> %d %d\n\n", botMove[0],botMove[1],botMove[2],botMove[3]);
@@ -64,6 +85,7 @@ int main(){
                 //sleep here to give the player time to take in their crushing defeat. 
             } else {
                 while (playerMove(players[i%2], vlines, hlines, point)){
+                    displayBoard(vlines,hlines, owned);
                     continue;
                 }   
             }
@@ -81,8 +103,6 @@ int main(){
 
         } else {
             int online;
-
-            
 
             while (1) {
                 printf("Play online? [Y/n]: \n");
@@ -103,11 +123,18 @@ int main(){
                 int fd[2]; // server fd = fd[0] client fd = fd[1]
                 int valid;
                 int result;
+                char buffer[BUFSIZE];
+
+                int boxesClaimed = 0;
 
                 runServer(fd);
 
+                server_fd = fd[0];
+                client_fd = fd[1];
+
                 SharedMove *moveInfo = (SharedMove *) calloc(1, sizeof(SharedMove)); //Initiate the shared memory
                 moveInfo->ready = 0;
+                moveInfo->client_fd = fd[1];
                 pthread_mutex_init(&moveInfo->mutex, NULL);
 
                 // start the threa that will manage communication with the client
@@ -117,31 +144,56 @@ int main(){
 
                 int move[4];
 
+
+                stringDisplay(vlines, hlines, owned, buffer, boxesClaimed, scores);
+                printf("%s", buffer);
+
+
                 while(scores[0] + scores[1] < HEIGHT*LENGTH){
-                    if(i%2){ // i is even => local player's turn, i is odd => online player's turn
+                    //printf("TURN i=%d, scores=%d/%d\n", i, scores[0], scores[1]);
+
+                    if(i%2 == 0){
+                        write(fd[1], "SERVER TURN\n", strlen("SERVER TURN\n"));
+                    } else {
+                        printf("Waiting for player B's move... \n");
+                        write(fd[1], "CLIENT TURN\n",strlen("CLIENT TURN\n"));
+                    }
+
+                    write(fd[1], "BEGIN BOARD\n", strlen("BEGIN BOARD\n"));
+                    write(fd[1],buffer,strlen(buffer));
+                    write(fd[1], "END BOARD\n", strlen("END BOARD\n"));
+
+                    if(!(i%2)){ // i is even => local player's turn, i is odd => online player's turn
+
+
                         while(playerMove(players[i%2],vlines, hlines, point)){
+                            
                             continue;
                         }
 
-                        int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
+                        boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
                         scores[i%2] += boxesClaimed;
-                        if(boxesClaimed){
-                        printf("Updated score : A: %d, B: %d\n",scores[0],scores[1]);
-                        }
                         
+                        stringDisplay(vlines,hlines, owned, buffer, boxesClaimed, scores);
+
+                        printf("%s\n", buffer);
+
                         if(boxesClaimed == 0) {
                             i++;
                         }
 
                     } else {
 
+
                         valid = 0;
 
                         while(!valid){
                             pthread_mutex_lock(&moveInfo->mutex);
 
+                            //printf("MAIN: waiting for moveInfo->ready\n");
                             if (moveInfo->ready == 0){
                                 pthread_mutex_unlock(&moveInfo->mutex);
+                                usleep(1000);
                                 continue;
                             }
 
@@ -149,24 +201,48 @@ int main(){
                                 move[j] = moveInfo->move[j];
                             }
 
-                            //mark that move has been read
                             moveInfo->ready = 0;
 
+                            pthread_mutex_unlock(&moveInfo->mutex);
+
+                            //mark that move has been read
+                            
                             result = onlineMove(move, vlines, hlines, point);
 
                             if(result == 1){
-                                write(fd[1], "INVALID\n", sizeof("INVALID\n"));
+                                write(fd[1], "INVALID\n", strlen("INVALID\n"));
+
+                                write(fd[1], "CLIENT TURN\n", strlen("CLIENT TURN\n"));
+                                write(fd[1], "BEGIN BOARD\n", strlen("BEGIN BOARD\n"));
+                                write(fd[1],buffer,strlen(buffer));
+                                write(fd[1], "END BOARD\n", strlen("END BOARD\n"));
                                 continue;
                             } else if (result == 2){
-                                write(fd[1], "OCCUPIED\n", sizeof("OCCUPIED\n"));
+                                write(fd[1], "OCCUPIED\n", strlen("OCCUPIED\n"));
+
+                                write(fd[1], "CLIENT TURN\n", strlen("CLIENT TURN\n"));
+                                write(fd[1], "BEGIN BOARD\n", strlen("BEGIN BOARD\n"));
+                                write(fd[1],buffer,strlen(buffer));
+                                write(fd[1], "END BOARD\n", strlen("END BOARD\n"));
                                 continue;
                             }   
+
+                            if(result == 0){
+                                valid = 1;
+                            }
                         }
 
-                        
 
+                        int boxesClaimed = boxCheck(players[i%2], vlines, hlines, owned, point);
+                        scores[i%2] += boxesClaimed;
 
+                        stringDisplay(vlines, hlines, owned, buffer, boxesClaimed, scores);
 
+                        printf("%s", buffer);
+                                
+                        if(boxesClaimed == 0) {
+                            i++;
+                        }
                     }
                 }
                 
@@ -177,6 +253,7 @@ int main(){
                     displayBoard(vlines, hlines, owned);
 
                     while (playerMove(players[i%2], vlines, hlines, point)){ // keep playing until a valid input is registered
+                        displayBoard(vlines,hlines, owned);
                         continue; 
                     }
                     

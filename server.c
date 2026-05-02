@@ -23,6 +23,9 @@ int runServer(int fd[2]){
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(8080);
 
+    int opt = 1;
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
     if(bind(server_fd, (struct sockaddr*) &address, addr_len) < 0){
         perror("Bind failed :(\n   ");
         close(server_fd);
@@ -41,8 +44,8 @@ int runServer(int fd[2]){
     
     printf("Client connected\n");
 
-    const char* start = "START\n";
-    write(client_fd, start, strlen(start));
+    //const char* start = "START\n";
+    //write(client_fd, start, strlen(start));
 
 
 
@@ -53,32 +56,6 @@ int runServer(int fd[2]){
     return 0;
 }
 
-
-    // int bytes;
-
-
-    // //send & receive
-    // while(1){
-    //     int bytes = read(client_fd, buffer, BUFSIZE-1);
-    //     if (bytes <= 0){
-    //         break;
-    //     }
-        
-    //     buffer[bytes]='\0';
-
-
-    //     printf("Received: %s \n",buffer);
-
-    //     //Game logic goes here
-
-
-    //     const char* board = "BOOOOOOAAAARDD"; // print the actual board later
-
-    //     write(client_fd, board, strlen(board));
-    // }
-
-    // close(client_fd);
-    // close(server_fd);
     void* networkThread(void *ptr){
         SharedMove *moveInfo = (SharedMove *) ptr;
 
@@ -88,8 +65,15 @@ int runServer(int fd[2]){
         int move[4];
 
         while(1){
-            int bytes = read(client_fd, buffer, BUFSIZE-1);
+
+            //printf("WAITING FOR MOVE\n");
+
+            int bytes = read(client_fd, buffer, BUFSIZE -1);
+
+            buffer[bytes] = '\0';
             
+            //printf("[ONLINE INPUT: %s]\n", buffer);
+
             if(bytes <= 0){
                 break;
             }
@@ -99,6 +83,7 @@ int runServer(int fd[2]){
             //printf(" Received: %s\n", buffer);
 
             //check for move validity
+
             if( sscanf(buffer, "%d %d %d %d", &move[0], &move[1], &move[2], &move[3]) != 4){
                 write(client_fd, "INVALID\n",strlen("INVALID\n"));
                 continue;
@@ -128,3 +113,5 @@ int runServer(int fd[2]){
 
         return NULL;
     }
+
+

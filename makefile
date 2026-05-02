@@ -1,4 +1,4 @@
-SOURCES = main.c display.c helper.c bot.c
+SOURCES = main.c display.c helper.c bot.c server.c 
 OBJECTS = $(SOURCES:.c=.o)
 CC = gcc
 CFLAGS = -Wall -c 

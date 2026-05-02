@@ -49,8 +49,10 @@ void displayBoard(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH] ,
 //     size_t pos = 0; 
 //     memset(buffer, '\0',strlen(buffer));
 // }
-    
-void onlineDisplay(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], char buffer[BUFSIZE]) {
+
+
+
+void stringDisplay(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH], char owned[HEIGHT][LENGTH], char buffer[BUFSIZE], int boxesClaimed,int scores[2]) {
     memset(buffer, 0, BUFSIZE);
     char line[2 * LENGTH + 2];
     int pos = 0;
@@ -84,4 +86,12 @@ void onlineDisplay(char vlines[HEIGHT][LENGTH+1], char hlines[HEIGHT+1][LENGTH],
             pos += sprintf(buffer + pos, "%s\n", line);
         }
     }
+
+    if(boxesClaimed){
+        pos += sprintf(buffer + pos, "Updated score : A: %d, B: %d\n", scores[0], scores[1]);
+    }
+
+
+    buffer[pos] = '\0';
 }
+    
