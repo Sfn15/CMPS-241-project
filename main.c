@@ -167,7 +167,7 @@ int main(){
 
 
                         while(playerMove(players[i%2],vlines, hlines, point)){
-                            
+                            printf("%s\n", buffer);    
                             continue;
                         }
 
@@ -189,8 +189,7 @@ int main(){
 
                         while(!valid){
                             pthread_mutex_lock(&moveInfo->mutex);
-
-                            //printf("MAIN: waiting for moveInfo->ready\n");
+                            
                             if (moveInfo->ready == 0){
                                 pthread_mutex_unlock(&moveInfo->mutex);
                                 usleep(1000);
