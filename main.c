@@ -167,7 +167,7 @@ int main(){
 
 
                         while(playerMove(players[i%2],vlines, hlines, point)){
-                            
+                            printf("%s\n", buffer);
                             continue;
                         }
 
