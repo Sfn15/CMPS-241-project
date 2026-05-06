@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "server.h"
 #include "config.h"
@@ -29,7 +30,8 @@ int runServer(int fd[2]){
     if(bind(server_fd, (struct sockaddr*) &address, addr_len) < 0){
         perror("Bind failed :(\n   ");
         close(server_fd);
-        return 1;
+        exit(0);
+        //return 1
     }
 
     printf("Waiting for client \n");

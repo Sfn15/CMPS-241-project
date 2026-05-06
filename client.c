@@ -8,7 +8,7 @@
 
 int main(){
     char hostname[128];
-    printf("Enter server IP (default is 127.0.0.1): ");
+    printf("Enter server IP (default is 127.0.0.1):\n");
     fgets(hostname, sizeof(hostname), stdin);
 
     if(hostname[0] == '\n'){
