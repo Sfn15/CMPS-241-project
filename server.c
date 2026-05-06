@@ -66,21 +66,15 @@ int runServer(int fd[2]){
 
         while(1){
 
-            //printf("WAITING FOR MOVE\n");
-
             int bytes = read(client_fd, buffer, BUFSIZE -1);
 
             buffer[bytes] = '\0';
-            
-            //printf("[ONLINE INPUT: %s]\n", buffer);
 
             if(bytes <= 0){
                 break;
             }
 
             buffer[bytes] = '\0';
-
-            //printf(" Received: %s\n", buffer);
 
             //check for move validity
 
@@ -93,7 +87,6 @@ int runServer(int fd[2]){
             pthread_mutex_lock(&moveInfo->mutex);
 
             // if previous move is not done processing, ignore message
-
             if(moveInfo->ready == 1){
                 pthread_mutex_unlock(&moveInfo->mutex);
                 write(client_fd, "WAIT\n", strlen("WAIT\n"));

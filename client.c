@@ -65,26 +65,11 @@ int main(){
 
         buffer[bytes] = '\0';
 
-        //printf("Raw read: %s\n",buffer);
-
-
         strcat(acc, buffer);
 
         char *line_start = acc;
         char *newline;
 
-        /*
-        A major issue with the previous loop is that if several messages are received
-        at once, everything breaks (bad). This ensures that the buffer is fully
-        'consumed' before moving on to reading the next thing. 
-
-        the loop condition basically checks for a newline characters, where strchr != NULL
-        whenever one is found, meaning that there is still a line to read,
-        since the server and main are designed to only send messages that terminate with
-        \n.
-
-        newline points to the \n character and so it separates every message received
-        */
         while((newline = strchr(line_start, '\n')) != NULL){
             *newline = '\0'; 
 
@@ -161,16 +146,12 @@ int main(){
 
         char message[64];
 
-        //printf("ASKING FOR INPUT\n");
-        snprintf(message, sizeof(message), "%d %d %d %d\n", input[0], input[1], input[2], input[3]);
+        snprintf(message, sizeof(message), "%d %d %d %d\n",
+        input[0], input[1], input[2], input[3]);
+        
         write(sockfd, message, strlen(message));
-        //printf("MOVE SENT\n");
-        // have the server check for validity later, now this is good enough
     }
 
     close(sockfd);
     return 0;
-
-
-
 }

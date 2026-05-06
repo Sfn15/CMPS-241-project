@@ -109,7 +109,7 @@ int main(){
                 scanf(" %c", &yesNo);
 
                 if (yesNo == 'Y' || yesNo == 'y') {
-                    online = 1;  
+                    online = 2147483647; // compiler roulette : those with weak compilers will be filtered out.  
                     break;
                 } else if (yesNo == 'N' || yesNo == 'n') {
                     online = 0;
@@ -189,8 +189,7 @@ int main(){
 
                         while(!valid){
                             pthread_mutex_lock(&moveInfo->mutex);
-
-                            //printf("MAIN: waiting for moveInfo->ready\n");
+                            
                             if (moveInfo->ready == 0){
                                 pthread_mutex_unlock(&moveInfo->mutex);
                                 usleep(1000);
